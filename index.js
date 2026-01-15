@@ -5,19 +5,18 @@ require('dotenv').config();
 
 const app = express();
 
-// gadget-groove-db-user
-// 3EazjSu6XRb4Pe3C
-
 // Middleware setup
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log("✅ MongoDB Connected: Gadget-Groove Cloud DB"))
-    .catch(err => console.error("❌ MongoDB Connection Error:", err));
+// gadget-db connect
+mongoose.connect(process.env.MONGODB_URI, {
+    dbName: 'gadget-db' 
+})
+    .then(() => console.log("MongoDB Connected: Gadget-Groove Cloud DB"))
+    .catch(err => console.error("MongoDB Connection Error:", err));
 
-// Product Schema for Hardware Items
+// Model collection items save
 const productSchema = new mongoose.Schema({
     title: String,
     category: String,
@@ -28,12 +27,12 @@ const productSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-const Product = mongoose.model('Product', productSchema);
+
+const Product = mongoose.model('Product', productSchema, 'items');
 
 // --- API Endpoints ---
 
-
-//  Get all hardware products
+// Get all hardware products
 app.get('/api/products', async (req, res) => {
     try {
         const products = await Product.find().sort({ createdAt: -1 });
@@ -54,13 +53,9 @@ app.post('/api/products', async (req, res) => {
     }
 });
 
-
-
 app.get('/', (req, res) => {
   res.send('Gadget Groove server connected successfully!')
 })
 
-
-
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
